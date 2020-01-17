@@ -11,7 +11,7 @@ sc.setLogLevel("ERROR")
 
 
 # read the input file into an RDD[String]
-wholeFile = sc.textFile("./data/machine_events/part-00000-of-00001.csv")
+wholeFile = sc.textFile("data/machine_events/part-00000-of-00001.csv")
 
 # split each line into an array of items
 entries = wholeFile.map(lambda x : x.split(','))
@@ -21,7 +21,7 @@ entries.cache()
 
 ##### Get the percentage of cpu loss for maintenance
 
-# First get a RDD with the amount of cpu removed during the processing
+# First get a RDD with the amount of cpu removed during the processing (id, (event, cpu, 1))
 cpu_removed = entries.filter(lambda x: x[2] != u'2' and x[4] is not u'')\
 	.map(lambda x:(x[1],(int(x[2]),float(x[4]),1)) if x[2]==u'1' else (x[1],(int(x[2]),0,1)))\
 	.reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1], x[2]+y[2]))\

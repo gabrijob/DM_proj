@@ -62,4 +62,12 @@ Priority 11: 0.0% of having a task evicted. Out of 13090 events with this priori
 We can conclude that, indeed, it seems that tasks with low priorities have higher chances of being evicted. This makes sense too, because it is precisely to make available resources to other higher priority tasks that one task may be evicted.
 We can see that for any given event that happens to a lowest, priority zero, task there is a AAAAAAAAAAA percent chance of it being an eviction. For the higher priority tasks, starting already from second level, the chance is less then 1% of such an event happening. Finally, out of BBBBBB events that happened to level 11 priority tasks, none of them were evictions.
 
+## Are there tasks that consume significantly less resources than what they requested?
+Yes.
 
+## What is the distribution of the number jobs/tasks per scheduling class?
+
+Jobs tasks scheduling class analysis
+
+
+## What is the percentage of jobs/tasks that got killed or evicted depending on the scheduling class?

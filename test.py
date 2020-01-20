@@ -17,10 +17,13 @@ def findCol(firstLine, name):
 sc = SparkContext("local[1]")
 sc.setLogLevel("ERROR")
 
-
 # read the input file into an RDD[String]
-wholeFile = sc.textFile("part-00489-of-00500.csv")
+wholeFile2 = sc.textFile("data/task_events/part-00190-of-00500.csv")
+wholeFile = sc.textFile("data/task_events/part-00000-of-00500.csv")
 numberOfElements = wholeFile.count()
+
+files = [wholeFile, wholeFile2]
+wholeFile = sc.union(files)
 
 print('Number of partitions: '+ str(wholeFile.getNumPartitions()))
 print('Type of wholefile: '+ str(type(wholeFile)))
@@ -30,6 +33,10 @@ print('Total elements '+ str(numberOfElements))
 entries = wholeFile.filter(lambda x: x)
 entries = entries.map(lambda x : x.split(','))
 
+# keep the RDD in memory
+entries.cache()
+
+#In general, do tasks from the same job run on the same machine
 
 
 targetJobId = '6335536474';

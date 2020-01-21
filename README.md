@@ -8,14 +8,18 @@ The data were downloaded using a custom made script, **downloads.sh**, which was
 
 In addition to this _report_ the files in the submission are:
 
-* One _python_ (.py) file for each of the analysis or questions answered. 
-* The aforementioned custom-made script.
+* One _python_ (.py) file for each of the analyses or questions answered. 
+* The aforementioned custom-made script **script.sh**, which helped downloading and unzipping the task/job events files.
 * Images containing the graphics shown in the report, in the _images_ folder. 
 * The _allResults.txt_ file, which has a record of the output of each of the anaylises, for consultation purposes. 
 
 ## Work on the Dataset
 
-### Analysis of cpu loss due to maintenance
+The studies executed where made to show a few possibilities of what **Spark** can do. With that said, the analyses will consist of basic questions, some suggested in the [_project description_](https://tropars.github.io/downloads/lectures/LSDM/LSDM-lab-spark-google.pdf) and some which were not. In some cases, the _time_ library of python will be used also to register the elapsed time for a given processing to be done by spark. Once again, it is worth mentioning that the computational resources were limited. As such, we decided to use only _100 files for task and job events_, out of 500 in total. This number would not slow the machines down so much, as well as not cost so much space in the hard-drive, while still being able to measure the capabilities of Spark.
+
+We move on to the anaylises.
+
+### Analysis of CPU loss due to maintenance
 
 In this step we are interested in estimating how much CPU is lost due to maintenance. To do so, we will process data on the _machine_events_ files. We will need first to set an RDD with the amount of cpu removed during the processing. This information would take a new form to look like this:
 
@@ -48,19 +52,22 @@ tot_cpu_loss_mtnc = cpu_loss_maintenance[1] / cpu_loss_maintenance[0] * 100
 
 tot_cpu_loss_fail = tot_cpu_loss_all - tot_cpu_loss_mtnc
 ```
-The same procedure can be repeated to extract infromation related to memory loss. And finally, the results are as follows:
+The same procedure can be repeated to extract information related to memory loss. And finally, the results are as follows:
 
 ```
-RESULTS
+The percentage of cpu loss for all removals is 53.187451155520826               
+The percentage of cpu loss for maintenance is 52.60410851847717 
+The percentage of cpu loss for failures is 0.583342637043657 
+The percentage of memory loss for maintenance is 48.62974522719375 
 ```
-Analysis, we can see that....
 
+ANALYSIS BY GABRIEL ANTHUNES 
 
-### Analysis of the distribution of machines according to CPU capacity
+### Analysis of the distribution of machines according to CPU and MEMORY capacity
 
 This analysis can be found in the "machines_distribution_analysis.py". Its purpose is to use the _machine_events_ file to estimate the distribution of machines in relation to its CPU and memory capacity.
 First, we begin by creating a RDD with the entries of the file, then we change it to a more useful format for us. This is done with the combination of a _map()_ method to get (machine ID, (CPU, Memory)) key-value pairs with only the relevant fields for the analysis, and after with the _distinct()_ and _filter()_ methods to select distinct non-empty entries. With that we are able to calculate the total number of valid machines with:
-```
+```Python
 machine_nb = machines.count()
 ```
 Now we need to count the number of machines for each CPU and memory capacities, to do so we apply another _map()_ to the previous RDD to get new key-value pairs in the form of (CPU capacity, 1) and (Memory capacity, 1), and Spark has a counting method for these cases in _countByKey()_(_reduceByKey(add)_ was an equally valid option). Finally, we divide these values by the total number of machines to get the distributions. These operations can be seen on the lines:
@@ -68,11 +75,35 @@ Now we need to count the number of machines for each CPU and memory capacities, 
 dist_cpu = machines.map(lambda x: (float(x[1][0]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb)) 
 dist_mem = machines.map(lambda x: (float(x[1][1]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb))
 ```
+The output on the terminal looks like this:
+
+```
+Distribution of machines according to cpu capacity:
+
+CPU capacity: 0.25; Distribution: 1.0007942811755361%
+CPU capacity: 0.5; Distribution: 92.66084193804606%
+CPU capacity: 1.0; Distribution: 6.338363780778396%
+
+Distribution of machines according to memory capacity:
+
+Memory capacity: 0.03085; Distibution: 0.03971405877680699%
+Memory capacity: 0.06158; Distibution: 0.007942811755361398%
+Memory capacity: 0.1241; Distibution: 0.4289118347895155%
+Memory capacity: 0.2493; Distibution: 30.706910246227164%
+Memory capacity: 0.2498; Distibution: 1.0007942811755361%
+Memory capacity: 0.4995; Distibution: 53.47100873709293%
+Memory capacity: 0.5; Distibution: 0.023828435266084195%
+Memory capacity: 0.749; Distibution: 7.966640190627482%
+Memory capacity: 0.9678; Distibution: 0.03971405877680699%
+Memory capacity: 1.0; Distibution: 6.314535345512311%
+Total time elapsed: 3.038912534713745 seconds.
+```
+
 The resulting distributions can be seen on the following plots:
 ![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_cpu.png "Machine CPU Distributions")
 ![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_mem.png "Machine Memory Distributions")
 
-We can easily note that for both the CPU and memory capacities, the trend seems to be that the machines end up disponibilizing half of its resourses, other than that small variations can occur but not as significant.
+We can easily note that for both the CPU and memory capacities, the trend seems to be that the machines end up disponibilizing half of its resourses, other than that, small variations can occur but not as significant. This analysis was conducted by Spark in **3.04** seconds. 
 
 ## Question: Do tasks with low priority have a higher probability of being evicted?
 
@@ -129,7 +160,6 @@ Total time elapsed: 201.9795045852661 seconds.
 In graphical form, the distribution is as follows:
 
 ![TaskDitrib](https://github.com/gabrijob/DM_proj/blob/master/images/EvictionKillRatePerPriority.png "Task Eviction Distributions")
-
 
 We can conclude that, indeed, it seems that tasks with low priorities have higher chances of being evicted. This makes sense too, because it is precisely to make available resources to other higher priority tasks that one task may be evicted.
 We can see that for any given event that happens to lowest priorities, say zero and one, tasks there is around 8% chance of it being an eviction. For the higher priority tasks, starting already from the fourth level, the chance drops to nearly 0% of such an event happening. Finally, out of 16025 events that happened to level 11 priority tasks, none of them were evictions.
@@ -219,6 +249,6 @@ Scheduling class 2 :66.9128349599222 percent.
 Scheduling class 3 :49.67025745734469 percent.                                  
 Total time elapsed: 564.0192849636078 seconds.
 ``` 
-These computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in **3.2 minutes** for the first step and **9.40 minutes** for the second step. Over this time, spark was processing around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 
+These computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in **3.2 minutes** for the first step and **9.40 minutes** for the second step. Over this time, spark was processing around 32,959,317 lines of data, from the first 100 _task_event_ files available in the dataset, which is quite impressive. 
 
 We can see in the first graph that there isn't a very strong relation between a scheduling class of a task, and the frequency with which they can be evicted or killed. In general it seems that scheduling classes 0 and 1 have tasks which can be evicted or killed more often then scheduling classes 2 and 3. In the second graph the distribution at first looks similar, tasks which have scheduling classes 1 or 2, that are evicted or killed at least once, are less frequent then in the other scheduling classes. This time however, Scheduling classes 2 and 3 have tasks that are much more prone to being evicted or killed in their lifetime.

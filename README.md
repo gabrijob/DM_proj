@@ -155,11 +155,15 @@ allEvents = entries.map(lambda x: (x[7], (1, (x[2], x[3])))).distinct().reduceBy
 tasksThatWereEvictedOrKilled = allEvents.filter(lambda x: x[5] == u'2' or x[5] ==u'5').map(lambda x: (x[7], (1, (x[2], x[3])))).distinct().reduceByKey(lambda x, y: (x[0] + y[0], x[1]))
 
 ```
-After manipulating the results to calculate averages, they are printed on the output terminal:
+After manipulating the results to calculate averages, they are printed on the output terminal. We can then generate the following graphics:
+
+![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/killedEvictedBySchedulingClass-1.png "Step 1 Results")
+![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/killedEvictedBySchedulingClass-2.png "Step 2 Results")
 
 ```
-RESULTS
-```
 
+
+
+``` 
 We can see that...
 This computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in AAAAAAAAAA ms iterating around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 

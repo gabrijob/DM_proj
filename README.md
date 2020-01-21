@@ -59,14 +59,15 @@ First, we begin by creating a RDD with the entries of the file, then we change i
 machine_nb = machines.count()
 ```
 Now we need to count the number of machines for each CPU and memory capacities, to do so we apply another _map()_ to the previous RDD to get new key-value pairs in the form of (CPU capacity, 1) and (Memory capacity, 1), and Spark has a counting method for these cases in _countByKey()_(_reduceByKey(add)_ was an equally valid option). Finally, we divide these values by the total number of machines to get the distributions. These operations can be seen on the lines:
-```
+```Python
 dist_cpu = machines.map(lambda x: (float(x[1][0]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb)) 
-
 dist_mem = machines.map(lambda x: (float(x[1][1]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb))
 ```
 The resulting distributions can be seen on the following plots:
 ![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_cpu.png "Machine CPU Distributions")
 ![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_mem.png "Machine Memory Distributions")
+
+We can easily note that for both the CPU and memory capacities, the trend seems to be that the machines end up disponibilizing half of its resourses, other than that small variations can occur but not as significant.
 
 ## Question: Do tasks with low priority have a higher probability of being evicted?
 

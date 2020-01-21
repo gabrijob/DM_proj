@@ -2,6 +2,7 @@ from pyspark import SparkContext
 from operator import add
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 #### Driver program
 
@@ -18,7 +19,7 @@ entries = wholeFile.map(lambda x : x.split(','))
 
 # keep the RDD in memory
 entries.cache()
-
+start = time.time()
 ### Get pairs (machine id, cpu, memory)
 machines = entries.map(lambda x: (x[1],(x[4],x[5]))).distinct().filter(lambda x: x[1][0] != u'' and x[1][0] != u'')
 
@@ -59,6 +60,9 @@ print("\nDistribution of machines according to memory capacity:\n")
 for elem in dist_mem.collect():
     print("Memory capacity: " + str(elem[0]) + "; Distibution: " + str(elem[1]) + "%")
 
+total = time.time()-start
+print('Total time elapsed: '+str(total)+' seconds.')			
+
 mem_labels = []
 mem_prob_h = []
 for elem in dist_mem.collect():
@@ -66,6 +70,9 @@ for elem in dist_mem.collect():
     mem_prob_h.append(elem[1])
 
 y_pos = np.arange(len(mem_labels))
+
+
+
 
 plt.bar(y_pos, mem_prob_h)
 plt.xticks(y_pos, mem_labels)

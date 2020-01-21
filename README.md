@@ -3,7 +3,7 @@
 
 # Data Management in Large-Scale Distributed Systems Project
 ###### MOSIG M2 - 2019/20 
-###### Members: Gabriel Benevides - Gabriel ANTHUNES JOB
+###### Members: Gabriel BENEVIDES - Gabriel JOB ANTUNES GRABHER
 
 
 ## Project Description
@@ -258,3 +258,35 @@ Total time elapsed: 564.0192849636078 seconds.
 These computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in **3.2 minutes** for the first step and **9.40 minutes** for the second step. Over this time, spark was processing around 32,959,317 lines of data, from the first 100 _task_event_ files available in the dataset, which is quite impressive.
 
 We can see in the first graph that there isn't a very strong relation between a scheduling class of a task, and the frequency with which they can be evicted or killed. In general it seems that scheduling classes 0 and 1 have tasks which can be evicted or killed more often then scheduling classes 2 and 3. In the second graph the distribution at first looks similar, tasks which have scheduling classes 1 or 2, that are evicted or killed at least once, are less frequent then in the other scheduling classes. This time however, Scheduling classes 2 and 3 have tasks that are much more prone to being evicted or killed in their lifetime.
+
+### Task resources lost due to general errors
+
+The last analysis will be run on files from two separate types: _task_usage_ and _task_events_. The code is present in the file "task_resource_analysis.py". The main goal is to get an estimate of the amount of CPU processing and memory allocation lost due to tasks failing, being killed or lost.
+
+First, we create two RDDs with the entries from the files, one for the task usages and other for the task events. Then we select the entries that are useful to the analysis and store them in the RDDs _task_usages_ and _task_failed_.
+
+* For _task_usages_:
+```Python
+task_usages = entries.map(lambda x: ((x[2],x[3]), (float(x[5]),float(x[6])))).reduceByKey(lambda x,y: (x[0] + y[0], x[1] + y[1]))
+
+```
+We use the _map()_ method on the entries from the task usages file to create key-value pairs in the form of [(job ID, task index), (mean CPU usage rate, canonical memory usage)] then we apply _reduceByKey()_ to sum the values for CPU and memory usage for each task. It's worth noting that these are approximate values, since we are dealing with mean values for the whole measurement period.
+
+* For _task_failed_:
+```Python
+task_failed = entries2.filter(lambda x: x[5] == u'3' or x[5] == u'5' or x[5] == u'6').map(lambda x: ((x[2], x[3]),x[5])).distinct()
+```
+We start by applying a _filter()_ on the entries from the task events to select only the FAIL, KILL, or LOST events. Then a _map()_ method is used to get pair of the form [(job ID, task index), event type]. To conclude, a _distinct()_ is applied so that failures for one task are considered only once.
+
+To simply join both RDDs, Spark allows us to use the method _join()_ to create a new RDD cointaining all pairs with matching keys from them, where the new pairs will be in the form [key, (value1, value2)]. Then, we're free to use _map()_ and _reduce()_ on the resulting RDD to calculate the total approximate amount of resources used by tasks that did not finish correctly. As seen in lines:
+```Python
+tasks_failed_usages = task_usages.join(task_failed)
+loss_to_failures = tasks_failed_usages.map(lambda x: (x[1][0][0], x[1][0][1])).reduce(lambda x,y: (x[0] + y[0], x[1] + y[1]))
+```
+
+Which gives the following results:
+```
+Approximate CPU processing lost due to failures: 366.933069099 CPU-core-s/s     
+Approximate memory pages lost due to failures: 133.732437228 user accessible pages
+```
+

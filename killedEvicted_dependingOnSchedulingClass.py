@@ -20,14 +20,24 @@ def findCol(firstLine, name):
 sc = SparkContext("local[1]")
 sc.setLogLevel("ERROR")
 
-# read the input file into an RDD[String]
-wholeFile2 = sc.textFile("data/task_events/part-00190-of-00500.csv")
-wholeFile = sc.textFile("data/task_events/part-00000-of-00500.csv")
+# read the input files into an RDD[String]
+files = []
 
-numberOfElements = wholeFile.count()
 
-files = [wholeFile2]
+
+start = time.time()
+for i in range(0,100):
+	fileName = 'data/task_events/part-'
+	second ='00000'+str(i)
+	if len(second) != 5:
+		second = second[-5:]
+	fileName = fileName+second
+	fileName = fileName + '-of-00500.csv'
+	currentFile = sc.textFile(fileName)
+	files.append(currentFile)
+
 wholeFile = sc.union(files)
+numberOfElements = wholeFile.count()
 
 print('Number of partitions: '+ str(wholeFile.getNumPartitions()))
 print('Type of wholefile: '+ str(type(wholeFile)))
@@ -49,12 +59,14 @@ print("Probability of task event being EVICT or KILL based on scheduling class:"
 for elem in percentages.sortByKey().collect():
 	print(elem)
 
+totalTime = time.time()-start
+print('First part finished. Time elapsed: '+str(totalTime)+' seconds.')
+
 print('Second part')
+start = time.time()
 
 values = entries.map(lambda x: (x[7], (1, (x[2], x[3])))).distinct().reduceByKey(lambda x, y: (x[0] + y[0], x[1]))
 tasksThatWereEvictedOrKilled = entries.filter(lambda x: x[5] == u'2' or x[5] ==u'5').map(lambda x: (x[7], (1, (x[2], x[3])))).distinct().reduceByKey(lambda x, y: (x[0] + y[0], x[1]))
-
-
 
 print('Percentage analysis')
 for elem in values.sortByKey().collect():
@@ -66,3 +78,5 @@ for elem in values.sortByKey().collect():
 			percentage = percentage * 100
 			print('Scheduling class '+str(elem[0])+' :'+str(percentage)+' percent.')
 
+total = time.time()-start
+print('Total time elapsed: '+str(total)+' seconds.')			

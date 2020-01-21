@@ -17,13 +17,20 @@ def findCol(firstLine, name):
 sc = SparkContext("local[1]")
 sc.setLogLevel("ERROR")
 
+files = []
 
-# read the input file into an RDD[String]
-wholeFile2 = sc.textFile("data/task_events/part-00190-of-00500.csv")
-wholeFile = sc.textFile("data/task_events/part-00000-of-00500.csv")
-numberOfElements = wholeFile.count()
 
-files = [wholeFile, wholeFile2]
+start = time.time()
+for i in range(0,100):
+	fileName = 'data/task_events/part-'
+	second ='00000'+str(i)
+	if len(second) != 5:
+		second = second[-5:]
+	fileName = fileName+second
+	fileName = fileName + '-of-00500.csv'
+	currentFile = sc.textFile(fileName)
+	files.append(currentFile)
+
 wholeFile = sc.union(files)
 
 print('Number of partitions: '+ str(wholeFile.getNumPartitions()))
@@ -52,3 +59,5 @@ print("Probability of evict event by priority:")
 for elem in reduction.sortByKey().collect():
 	print('Priority '+str(elem[0])+ ': '+str(elem[1][0])+'% of having a task evicted. Out of '+str(elem[1][1])+' events with this priority level.')
 
+total = time.time()-start
+print('Total time elapsed: '+total+' seconds.')			

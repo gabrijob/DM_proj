@@ -54,6 +54,8 @@ Analysis, we can see that....
 ## Analysis of the distribution of machines according to CPU capacity
 
 BLABLABLA
+![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_cpu.png "Machine CPU Distributions")
+![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_mem.png "Machine Memory Distributions")
 
 ## Question: Do tasks with low priority have a higher probability of being evicted?
 

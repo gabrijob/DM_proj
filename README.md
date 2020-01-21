@@ -2,15 +2,20 @@
 
 # Data Management Project - MOSIG M2 - 2019/20
 
-In this project we will carry on several analysises on the data set available online representing 29 days worth of information on one of  _Google_'s large scale clusters, compromising about 12.5k machines. There are hundreds of files available detailing the behavior of said machines, as well as the jobs and tasks they are carrying out over this time period. To facilitate the final calculations, we have decided to not use **all** the files, instead focusing on at most **100** files for each category. That is, when that many are available. 
+In this project we will carry on several analysises on the data set available online representing 29 days worth of information on one of  _Google_'s [large scale clusters](https://github.com/google/cluster-data/blob/master/ClusterData2011_2.md), compromising about 12.5k machines. There are hundreds of files available detailing the behavior of said machines, as well as the jobs and tasks they are carrying out over this time period.
 
-The data were downloaded using a custom made script, **downloads.sh**, which was written to automatically push files from google's cloud storage (using the _GSUtil_ tool) and unzip them immediately after in the desired path destination.
+The data were downloaded using a custom made script, **downloads.sh**, which was written to automatically push files from google's cloud storage (using the [_GSUtil_](https://cloud.google.com/storage/docs/gsutil) tool) and unzip them immediately after in the desired path destination. To facilitate the final calculations, we have decided to not use **all** the files, instead focusing on at most **100** files for each category. That is, when that many are available. Each analysis will be made using _spark_ transformations on the resilient distributed dataset (RDD) created for manipulation of out data. 
 
-The structure of the submission is simple. In addition to this report there will be one _python_ (.py) file for each of the analysis or questions answered. As well as the aforementioned custom made script and images containing the graphics shown in the report. 
+In addition to this _report_ the files in the submission are:
 
-Each analysis will be made using _spark_ transformations on the resilient distributed dataset (RDD) created for manipulation of out data. 
+* One _python_ (.py) file for each of the analysis or questions answered. 
+* The aforementioned custom-made script.
+* Images containing the graphics shown in the report, in the _images_ folder. 
+* The _allResults.txt_ file, which has a record of the output of each of the anaylises, for consultation purposes. 
 
-## Analysis of cpu loss due to maintenance
+## Work on the Dataset
+
+### Analysis of cpu loss due to maintenance
 
 In this step we are interested in estimating how much CPU is lost due to maintenance. To do so, we will process data on the _machine_events_ files. We will need first to set an RDD with the amount of cpu removed during the processing. This information would take a new form to look like this:
 
@@ -51,7 +56,7 @@ RESULTS
 Analysis, we can see that....
 
 
-## Analysis of the distribution of machines according to CPU capacity
+### Analysis of the distribution of machines according to CPU capacity
 
 This analysis can be found in the "machines_distribution_analysis.py". Its purpose is to use the _machine_events_ file to estimate the distribution of machines in relation to its CPU and memory capacity.
 First, we begin by creating a RDD with the entries of the file, then we change it to a more useful format for us. This is done with the combination of a _map()_ method to get (machine ID, (CPU, Memory)) key-value pairs with only the relevant fields for the analysis, and after with the _distinct()_ and _filter()_ methods to select distinct non-empty entries. With that we are able to calculate the total number of valid machines with:
@@ -71,17 +76,16 @@ We can easily note that for both the CPU and memory capacities, the trend seems 
 
 ## Question: Do tasks with low priority have a higher probability of being evicted?
 
-For this analysis we will use the _task events_ file. We are interested in computing the probability of a given task event to be an
-**eviction event**, in relation to its _priority_. That is, in relation to the priority of the job for which this given task belongs to. 
-Indeed, the priority of a job determines the priority of its tasks. In other words, all tasks related to a job will have the same priority.
+For this analysis we will use the _task events_ file. We are interested in computing the probability of a given task event to be an **eviction event**, in relation to its task's _priority_. That is, in relation to the priority of the job for which this given task belongs to. 
+Indeed, as the [documentation](https://drive.google.com/open?id=0B5g07T_gRDg9Z0lsSTEtTWtpOW8&authuser=0) explains, the priority of a job normally determines the priority of its tasks. In other words, all tasks related to a job should have the same priority.
 
-In terms of transformations on our __RDD__, we intend to __map__ it into a new structure that ideally contains one entry for each different priority level that is present in the data set. 
+In terms of transformations on our _RDD_, we intend to use Spark to _map_ it into a new structure that ideally contains one entry for each different priority level that is present in the data set. 
 Each entry in this new structure will in turn contain two distinct pieces of information: 
 
 * The probability of an **eviction event** for a task with this given priority. 
 * The total number of **all the events** that happened to any task with the same parent Job.
 
-This is done because we consider the Probability of Eviction as the number of eviction events for any task belonging to a job divided by the number of the total of events for any task belonging to this same job. The task indexes individually don't have a great importance because the average would remain the same for the Job as a whole.
+This is necessary because we consider the **Probability of Eviction** as the _number of eviction events for any task belonging to a job divided by the number of the total of events for any task belonging to this same job_. The task indexes individually don't have a great importance because the average would remain the same for the Job as a whole.
 
 To achieve this organization, each entry (task event) in the inital _RDD_ will be eventually mapped to the following shape: 
 
@@ -90,7 +94,6 @@ For each task event T:
   (Priority of T, (ID of T's Job, Event Type))
 ```
 Following, we will construct an _Eviction Rate by Priority_ RDD, which will consist of yet a new arrangement: 
-
 ```
 For each task event T:
   If Event Type is Eviction:
@@ -109,48 +112,71 @@ The results are as follows:
 
 ```
 Probability of evict event by priority:
-Priority 0: 16.54% of chances of having a task evicted. Out of 455070 events with this priority level.
-Priority 1: 2.09% of having a task evicted. Out of 72411 events with this priority level.
-Priority 2: 0.04% of having a task evicted. Out of 174466 events with this priority level.
-Priority 4: 0.04% of having a task evicted. Out of 181678 events with this priority level.
-Priority 6: 0.11% of having a task evicted. Out of 2609 events with this priority level.
-Priority 7: 0.0% of having a task evicted. Out of 3 events with this priority level.
-Priority 8: 0.10% of having a task evicted. Out of 8446 events with this priority level.
-Priority 9: 0.05% of having a task evicted. Out of 101764 events with this priority level.
-Priority 10: 0.05% of having a task evicted. Out of 2042 events with this priority level.
-Priority 11: 0.0% of having a task evicted. Out of 13090 events with this priority level.
+Priority 0: 7.629659465037097% of having a task evicted. Out of 16875301 events with this priority level.
+Priority 1: 8.070885808483835% of having a task evicted. Out of 1741618 events with this priority level.
+Priority 2: 1.0347617678510752% of having a task evicted. Out of 1759922 events with this priority level.
+Priority 3: 8.374384236453201% of having a task evicted. Out of 1827 events with this priority level.
+Priority 4: 0.1140258749190515% of having a task evicted. Out of 8811158 events with this priority level.
+Priority 5: 0.0% of having a task evicted. Out of 93 events with this priority level.
+Priority 6: 0.01775301998595539% of having a task evicted. Out of 253478 events with this priority level.
+Priority 8: 0.5186483776835573% of having a task evicted. Out of 178541 events with this priority level.
+Priority 9: 0.10400923130988833% of having a task evicted. Out of 3312206 events with this priority level.
+Priority 10: 1.1040664626147791% of having a task evicted. Out of 9148 events with this priority level.
+Priority 11: 0.0% of having a task evicted. Out of 16025 events with this priority level.
+
+Total time elapsed: 201.9795045852661 seconds.
 ```
+In graphical form, the distribution is as follows:
+
+![TaskDitrib](https://github.com/gabrijob/DM_proj/blob/master/images/EvictionKillRatePerPriority.png "Task Eviction Distributions")
+
+
 We can conclude that, indeed, it seems that tasks with low priorities have higher chances of being evicted. This makes sense too, because it is precisely to make available resources to other higher priority tasks that one task may be evicted.
-We can see that for any given event that happens to a lowest, priority zero, task there is a AAAAAAAAAAA percent chance of it being an eviction. For the higher priority tasks, starting already from second level, the chance is less then 1% of such an event happening. Finally, out of BBBBBB events that happened to level 11 priority tasks, none of them were evictions.
+We can see that for any given event that happens to lowest priorities, say zero and one, tasks there is around 8% chance of it being an eviction. For the higher priority tasks, starting already from the fourth level, the chance drops to nearly 0% of such an event happening. Finally, out of 16025 events that happened to level 11 priority tasks, none of them were evictions.
 
+This analysis was performed with the use of Spark in **3.36** minutes, processing 32,959,317 lines of data. 
 
-## What is the distribution of the number jobs/tasks per scheduling class?
+### Distribution of the number jobs/tasks per scheduling class
 
-We are interested in knowing the ditribution of tasks and jobs in relation to the different scheduling classes. This analysis will be done in terms of jobs and in terms of tasks, as such, the files from _job_events_ as well as _task_events_ will be used.
-The procedure will be the same for jobs and tasks, first we will map all the events in terms of Scheduling class and job_id. Following we need to eliminate any duplicates because there may be many events for the same task. Finally, we will reduce this newly obtained map by key (scheduling class). This way we can count how many tasks belong to each scheduling class. In the end we will be able to compare it to a total number of tasks to assess the distribution. The code looks something like this:
+We are interested in knowing the distribution of tasks and jobs in relation to the different scheduling classes. This analysis will be done in terms of jobs and in terms of tasks, as such, 100 files from _job_events_ as well as 100 files from _task_events_ will be used.
+The procedure will be the same for jobs and tasks, first we will use _spark_ to map all the events in terms of Scheduling class and job_id. Following this, we need to eliminate any duplicates because there may be many events for the same task. Finally, we will reduce this newly obtained map by key, which is the scheduling class. This way we can count how many tasks belong to each scheduling class. In the end we will be able to compare it to a total number of tasks to assess the distribution. The base code to cary out these operations looks something like this:
 ```Python
 allEvents = entries.map(lambda x: (int(x[7]), x[2] )).distinct().map(lambda x: (x[0], 1))
 reduction = allEvents.reduceByKey(add)  
 ```
-
 The same procedure for an _RDD_ containing job_events:
-
 ```Python
 allEvents = jobEntries.map(lambda x: (x[5], x[2] )).distinct().map(lambda x: (x[0], 1))
 reduction2 = allEvents.reduceByKey(add)
 ```
-
 The final distribution is as follows:
 
 ```
-RESULTADO FINAL
+For the tasks:
+Scheduling class 0 : 38.23496142795737 percent.                                 
+Scheduling class 1 : 33.002284912788724 percent.
+Scheduling class 2 : 27.216101471242528 percent.
+Scheduling class 3 : 1.546652188011372 percent.
+total is 132609
+Total time elapsed: 221.31702589988708 seconds.
+
+For the jobs:
+Scheduling class 0 : 38.23445156426687 percent.                                 
+Scheduling class 1 : 32.99811534112326 percent.
+Scheduling class 2 : 27.215981907274784 percent.
+Scheduling class 3 : 1.5514511873350922 percent.
+total is 132650
+Total time elapsed: 45.25424313545227 seconds.
 ```
+We can equally plot this distribution for visualisation purposes:
+![Tasks](https://github.com/gabrijob/DM_proj/blob/master/images/TasksBySchedulingClass.png "Tasks")
+![Jobs](https://github.com/gabrijob/DM_proj/blob/master/images/JobsBySchedulingClass.png "Jobs")
 
-As expected, we can see that the distributions ammount to 100% together, which is expected. It is also worthwile to mention that the distribution for jobs by scheduling class is very similar to that of the tasks by scheduling class. This is also expected because tasks have the same scheduling class as their parent jobs. Moreover, the files analyzed correspond to the same time frame which would mean that jobs and their related tasks would be activated within this window.
+As expected, we can see that the distributions ammount to 100% together, which is expected. It is also worthwile to mention that the distribution for jobs by scheduling class is very similar to that of the tasks by scheduling class. This is also expected because tasks have the same scheduling class as their parent jobs. Indeed, according to the [_google documentation_ ](https://drive.google.com/open?id=0B5g07T_gRDg9Z0lsSTEtTWtpOW8&authuser=0),jobs normally consist of identic tasks, that demand the same ammount of resources e possess the same priorities and scheduling class. Moreover, the files analyzed correspond to the same time frame which would mean that jobs and their related tasks would be activated within this window.
 
-This analysis was computed by _spark_ in AAAAAA ms, processing over BBBBBB files which contain CCCCCCC thousand lines of data. Once again, the transformations _map_ and _reduce_ came very useful to conduct the operations necessary on the dataset in a conscise way. 
+This analysis was computed using _spark_ in **3.68 minutes** for the tasks and **45 seconds** for the jobs, processing 200 files which contain approximately 33,353,310 lines of data. Once again, the transformations _map_ and _reduce_ came very useful to conduct the operations necessary on the dataset in a conscise way. 
 
-## What is the percentage of jobs/tasks that got killed or evicted depending on the scheduling class?
+### Percentage/Frequency of jobs/tasks that got killed or evicted depending on the scheduling class
 
 For this question, we will have two approaches to try and measure this relation.
 
@@ -193,6 +219,6 @@ Scheduling class 2 :66.9128349599222 percent.
 Scheduling class 3 :49.67025745734469 percent.                                  
 Total time elapsed: 564.0192849636078 seconds.
 ``` 
-These computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in 3.2 minutes for the first step and 9.40 minutes for the second step. Over this time, spark was processing around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 
+These computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in **3.2 minutes** for the first step and **9.40 minutes** for the second step. Over this time, spark was processing around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 
 
 We can see in the first graph that there isn't a very strong relation between a scheduling class of a task, and the frequency with which they can be evicted or killed. In general it seems that scheduling classes 0 and 1 have tasks which can be evicted or killed more often then scheduling classes 2 and 3. In the second graph the distribution at first looks similar, tasks which have scheduling classes 1 or 2, that are evicted or killed at least once, are less frequent then in the other scheduling classes. This time however, Scheduling classes 2 and 3 have tasks that are much more prone to being evicted or killed in their lifetime.

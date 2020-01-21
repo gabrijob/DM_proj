@@ -77,7 +77,7 @@ To achieve this organization, each entry (task event) in the inital _RDD_ will b
 For each task event T:
   (Priority of T, (ID of T's Job, Event Type))
 ```
-Following, we will contruct an _Eviction Rate by Priority_ RDD, which will consist of yet a new arrangement: 
+Following, we will construct an _Eviction Rate by Priority_ RDD, which will consist of yet a new arrangement: 
 
 ```
 For each task event T:
@@ -87,7 +87,7 @@ For each task event T:
     (Priority of T , (0,1))
 ```
 With this new RDD we can know if any given task event was of type _eviction_ or not. This is usefull to have a final number of total evictions and of total events for any priority.
-Finally we will reduce our set by priority key, which means that we will reduce the set to one single entry per priority, adding all this information together and computing the probability at the end. The command looks like this:
+Finally we will reduce our set by priority key, which means that we will reduce the set to one single entry per priority, adding all this information together and computing the probability at the end. Spark will conduct these operations with commands that looks like this:
 
 ```Python
 reduction = evictRate_byPriority.reduceByKey(lambda x, y: (x[0] + y[0], x[1]+y[1])).map(lambda x: (int(x[0]), (100*(x[1][0]/(x[1][0]+x[1][1])), x[1][0]+x[1][1])))
@@ -162,16 +162,18 @@ After manipulating the results to calculate averages, they are printed on the ou
 ![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/killedEvictedBySchedulingClass-1.png "Step 1 Results")
 ![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/killedEvictedBySchedulingClass-2.png "Step 2 Results")
 
-```
 First Step
+```
 Probability of task event being EVICT or KILL based on scheduling class:
 ('0', 8.422286770195647)                                                        
 ('1', 6.850361433152736)
 ('2', 22.141683206075324)
 ('3', 17.02527194943253)
 First part finished. Time elapsed: 191.8826973438263 seconds.
+```
 
 Second Step
+``` 
 Percentage analysis
 Scheduling class 0 :32.03944801867268 percent.                                  
 Scheduling class 1 :18.265014034833516 percent.                                 
@@ -179,5 +181,6 @@ Scheduling class 2 :66.9128349599222 percent.
 Scheduling class 3 :49.67025745734469 percent.                                  
 Total time elapsed: 564.0192849636078 seconds.
 ``` 
-We can see that...
-This computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in AAAAAAAAAA ms iterating around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 
+These computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in 3.2 minutes for the first step and 9.40 minutes for the second step. Over this time, spark was processing around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 
+
+We can see in the first graph that there isn't a very strong relation between a scheduling class of a task, and the frequency with which they can be evicted or killed. In general it seems that scheduling classes 0 and 1 have tasks which can be evicted or killed more often then scheduling classes 2 and 3. In the second graph the distribution at first looks similar, tasks which have scheduling classes 1 or 2 that are evicted or killed at least once, are less frequent then in the other scheduling classes. This time however, Scheduling classes 2 and 3 have tasks that are much more prone to being evicted or killed in their lifetime.

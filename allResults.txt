@@ -167,4 +167,19 @@ Total time elapsed: 3.038912534713745 seconds.
 
 
 
+gabriel@gabriel-Ubuntu:~/Public/DM_proj$ python task_resource_analyis.py 
+20/01/21 23:01:50 WARN Utils: Your hostname, gabriel-Ubuntu resolves to a loopback address: 127.0.1.1; using 10.186.175.75 instead (on interface wlp3s0)
+20/01/21 23:01:50 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+20/01/21 23:01:50 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+Approximate CPU processing lost due to failures: 366.933069099 CPU-core-s/s     
+Approximate memory pages lost due to failures: 133.732437228 user accessible pages
+
+
+
+
+
+
 

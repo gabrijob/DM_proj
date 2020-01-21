@@ -55,6 +55,9 @@ Analysis, we can see that....
 
 BLABLABLA
 
+![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_cpu.png "Machine CPU Distributions")
+![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_mem.png "Machine Memory Distributions")
+
 ## Question: Do tasks with low priority have a higher probability of being evicted?
 
 For this analysis we will use the _task events_ file. We are interested in computing the probability of a given task event to be an

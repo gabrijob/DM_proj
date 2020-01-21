@@ -125,4 +125,49 @@ The percentage of memory loss for maintenance is 48.62974522719375
 
 
 
+
+
+
+
+
+
+
+[benevidg@ensipc97 DM_proj]$ python machines_distribution_analysis.py 
+20/01/21 17:01:59 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+                                                                                
+Distribution of machines according to cpu capacity:
+
+CPU capacity: 0.25; Distribution: 1.0007942811755361%
+CPU capacity: 0.5; Distribution: 92.66084193804606%
+CPU capacity: 1.0; Distribution: 6.338363780778396%
+
+Distribution of machines according to memory capacity:
+
+Memory capacity: 0.03085; Distibution: 0.03971405877680699%
+Memory capacity: 0.06158; Distibution: 0.007942811755361398%
+Memory capacity: 0.1241; Distibution: 0.4289118347895155%
+Memory capacity: 0.2493; Distibution: 30.706910246227164%
+Memory capacity: 0.2498; Distibution: 1.0007942811755361%
+Memory capacity: 0.4995; Distibution: 53.47100873709293%
+Memory capacity: 0.5; Distibution: 0.023828435266084195%
+Memory capacity: 0.749; Distibution: 7.966640190627482%
+Memory capacity: 0.9678; Distibution: 0.03971405877680699%
+Memory capacity: 1.0; Distibution: 6.314535345512311%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### TASK RESOURCE ANALYSIS???

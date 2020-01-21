@@ -26,7 +26,7 @@ wholeFile = sc.textFile("data/task_events/part-00000-of-00500.csv")
 jobEvent= sc.textFile("data/job_events/part-00000-of-00500.csv")
 numberOfElements = wholeFile.count()
 
-files = [wholeFile2]
+files = [wholeFile]
 wholeFile = sc.union(files)
 
 print('Number of partitions: '+ str(wholeFile.getNumPartitions()))
@@ -57,7 +57,7 @@ for element in reshape.collect():
 	total = total + element[1]	
 
 for element in reshape.sortByKey().collect():
-	print ('Scheduling class '+str(element[0])+' : '+str(100*(element[1]/total))+' percent.')
+	print ('Scheduling class '+str(element[0])+' : '+str(100*(float(element[1])/total))+' percent.')
 
 print('total is '+str(total))
 	
@@ -83,8 +83,10 @@ total = 0
 for element in reshape.collect():
 	total = total + element[1]
 
+
 for element in reshape.sortByKey().collect():
-	print ('Scheduling class '+str(element[0])+' : '+str(100*(element[1]/total))+' percent.')
+#	print element
+	print ('Scheduling class '+str(element[0])+' : '+str(100*(float(element[1])/total))+' percent.')
 
 
 print('total is '+str(total))

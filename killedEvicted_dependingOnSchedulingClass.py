@@ -42,7 +42,8 @@ entries.cache()
 # What is the percentage of jobs/tasks that got killed or evicted depending on the scheduling class?
 
 values = entries.map(lambda x: (x[7], (1,1)) if (x[5] == '2' or x[5] == '5') else (x[7], (0,1))).reduceByKey(lambda x, y: (x[0] + y[0], x[1]+y[1]))
-percentages = values.map(lambda x: (x[0], (100*(x[1][0]/(x[1][0]+x[1][1])))))
+percentages = values.map(lambda x: (x[0], (100*(float(x[1][0])/(x[1][0]+x[1][1])))))
+
 
 print("Probability of task event being EVICT or KILL based on scheduling class:")
 for elem in percentages.sortByKey().collect():
@@ -61,7 +62,7 @@ for elem in values.sortByKey().collect():
 		if elem[0] == elem2[0]:
 			#print(elem)
 			#print(elem2)
-			percentage = elem2[1][0]/elem[1][0]
+			percentage = float(elem2[1][0])/elem[1][0]
 			percentage = percentage * 100
 			print('Scheduling class '+str(elem[0])+' :'+str(percentage)+' percent.')
 

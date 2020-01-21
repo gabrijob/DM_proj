@@ -53,8 +53,6 @@ print('Second part')
 values = entries.map(lambda x: (x[7], (1, (x[2], x[3])))).distinct().reduceByKey(lambda x, y: (x[0] + y[0], x[1]))
 tasksThatWereEvictedOrKilled = entries.filter(lambda x: x[5] == u'2' or x[5] ==u'5').map(lambda x: (x[7], (1, (x[2], x[3])))).distinct().reduceByKey(lambda x, y: (x[0] + y[0], x[1]))
 
-
-
 print('Percentage analysis')
 for elem in values.sortByKey().collect():
 	for elem2 in tasksThatWereEvictedOrKilled.sortByKey().collect():
@@ -64,4 +62,3 @@ for elem in values.sortByKey().collect():
 			percentage = elem2[1][0]/elem[1][0]
 			percentage = percentage * 100
 			print('Scheduling class '+str(elem[0])+' :'+str(percentage)+' percent.')
-

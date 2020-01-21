@@ -104,30 +104,17 @@ Total time elapsed: 45.25424313545227 seconds.
 
 
 
-
-
-
-
-[benevidg@ensipc97 DM_proj]$ python machine_removal_analysis.py 
-20/01/21 16:51:51 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+gabriel@gabriel-Ubuntu:~/Public/DM_proj$ python machine_removal_analysis.py 
+20/01/22 00:38:33 WARN Utils: Your hostname, gabriel-Ubuntu resolves to a loopback address: 127.0.1.1; using 10.186.175.75 instead (on interface wlp3s0)
+20/01/22 00:38:33 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+20/01/22 00:38:33 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
 Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
-The percentage of cpu loss for all removals is 53.187451155520826               
-The percentage of cpu loss for maintenance is 52.60410851847717 
-The percentage of cpu loss for failures is 0.583342637043657 
-The percentage of memory loss for maintenance is 48.62974522719375 
-
-
-
-
-
-
-
-
-
-
-#### TASK RESOURCE ANALYSIS???
+The percentage of cpu loss for all removals is 41.9495443138                    
+The percentage of cpu loss for maintenance is 41.489455378 
+The percentage of cpu loss for failures is 0.460088935852 
+The percentage of memory loss for maintenance is 42.470537611
 
 
 

@@ -1,0 +1,128 @@
+All results from the terminal, for documentation purposes:
+
+[benevidg@ensipc97 DM_proj]$ python killedEvicted_dependingOnSchedulingClass.py 
+20/01/21 15:05:06 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+Number of partitions: 155                                                       
+Type of wholefile: <class 'pyspark.rdd.RDD'>
+Total elements 32959317
+Probability of task event being EVICT or KILL based on scheduling class:
+('0', 8.422286770195647)                                                        
+('1', 6.850361433152736)
+('2', 22.141683206075324)
+('3', 17.02527194943253)
+First part finished. Time elapsed: 191.8826973438263 seconds.
+Second part
+Percentage analysis
+Scheduling class 0 :32.03944801867268 percent.                                  
+Scheduling class 1 :18.265014034833516 percent.                                 
+Scheduling class 2 :66.9128349599222 percent.                                   
+Scheduling class 3 :49.67025745734469 percent.                                  
+Total time elapsed: 564.0192849636078 seconds.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[benevidg@ensipc97 DM_proj]$ python task_priority_eviction_analysis.py 
+20/01/21 15:49:25 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+Number of partitions: 155                                                       
+Type of wholefile: <class 'pyspark.rdd.RDD'>
+Total elements 32959317
+Probability of evict event by priority:
+Priority 0: 7.629659465037097% of having a task evicted. Out of 16875301 events with this priority level.
+Priority 1: 8.070885808483835% of having a task evicted. Out of 1741618 events with this priority level.
+Priority 2: 1.0347617678510752% of having a task evicted. Out of 1759922 events with this priority level.
+Priority 3: 8.374384236453201% of having a task evicted. Out of 1827 events with this priority level.
+Priority 4: 0.1140258749190515% of having a task evicted. Out of 8811158 events with this priority level.
+Priority 5: 0.0% of having a task evicted. Out of 93 events with this priority level.
+Priority 6: 0.01775301998595539% of having a task evicted. Out of 253478 events with this priority level.
+Priority 8: 0.5186483776835573% of having a task evicted. Out of 178541 events with this priority level.
+Priority 9: 0.10400923130988833% of having a task evicted. Out of 3312206 events with this priority level.
+Priority 10: 1.1040664626147791% of having a task evicted. Out of 9148 events with this priority level.
+Priority 11: 0.0% of having a task evicted. Out of 16025 events with this priority level.
+Total time elapsed: 201.9795045852661 seconds.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[benevidg@ensipc97 DM_proj]$ python jobs_tasks_schedulingClass_analysis.py 
+20/01/21 16:11:24 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+Number of partitions: 155                                                       
+Type of wholefile: <class 'pyspark.rdd.RDD'>
+Total elements 32959317
+For the tasks:
+Scheduling class 0 : 38.23496142795737 percent.                                 
+Scheduling class 1 : 33.002284912788724 percent.
+Scheduling class 2 : 27.216101471242528 percent.
+Scheduling class 3 : 1.546652188011372 percent.
+total is 132609
+Total time elapsed: 221.31702589988708 seconds.
+Number of partitions: 100                                                       
+Type of wholefile: <class 'pyspark.rdd.RDD'>
+Total elements 393993
+For job:
+Scheduling class 0 : 38.23445156426687 percent.                                 
+Scheduling class 1 : 32.99811534112326 percent.
+Scheduling class 2 : 27.215981907274784 percent.
+Scheduling class 3 : 1.5514511873350922 percent.
+total is 132650
+Total time elapsed: 45.25424313545227 seconds.
+
+
+
+
+
+
+
+
+
+
+
+[benevidg@ensipc97 DM_proj]$ python machine_removal_analysis.py 
+20/01/21 16:51:51 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+The percentage of cpu loss for all removals is 53.187451155520826               
+The percentage of cpu loss for maintenance is 52.60410851847717 
+The percentage of cpu loss for failures is 0.583342637043657 
+The percentage of memory loss for maintenance is 48.62974522719375 
+
+
+
+
+
+
+
+
+#### TASK RESOURCE ANALYSIS???

@@ -32,6 +32,7 @@ for i in range(0,100):
 	files.append(currentFile)
 
 wholeFile = sc.union(files)
+numberOfElements = wholeFile.count()
 
 print('Number of partitions: '+ str(wholeFile.getNumPartitions()))
 print('Type of wholefile: '+ str(type(wholeFile)))
@@ -54,10 +55,9 @@ reduction = evictRate_byPriority.reduceByKey(lambda x, y: (x[0] + y[0], x[1]+y[1
 jobWithPriorityN = all_events_byPriority.filter(lambda x: x[0] == u'11')
 
 
-
 print("Probability of evict event by priority:")
 for elem in reduction.sortByKey().collect():
 	print('Priority '+str(elem[0])+ ': '+str(elem[1][0])+'% of having a task evicted. Out of '+str(elem[1][1])+' events with this priority level.')
 
 total = time.time()-start
-print('Total time elapsed: '+total+' seconds.')			
+print('Total time elapsed: '+str(total)+' seconds.')			

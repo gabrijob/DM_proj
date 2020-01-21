@@ -20,14 +20,24 @@ def findCol(firstLine, name):
 sc = SparkContext("local[1]")
 sc.setLogLevel("ERROR")
 
-# read the input file into an RDD[String]
-wholeFile2 = sc.textFile("data/task_events/part-00190-of-00500.csv")
-wholeFile = sc.textFile("data/task_events/part-00000-of-00500.csv")
-jobEvent= sc.textFile("data/job_events/part-00000-of-00500.csv")
-numberOfElements = wholeFile.count()
 
-files = [wholeFile]
+files =  []
+
+
+
+start = time.time()
+for i in range(0,100):
+	fileName = 'data/task_events/part-'
+	second ='00000'+str(i)
+	if len(second) != 5:
+		second = second[-5:]
+	fileName = fileName+second
+	fileName = fileName + '-of-00500.csv'
+	currentFile = sc.textFile(fileName)
+	files.append(currentFile)
+
 wholeFile = sc.union(files)
+numberOfElements = wholeFile.count()
 
 print('Number of partitions: '+ str(wholeFile.getNumPartitions()))
 print('Type of wholefile: '+ str(type(wholeFile)))
@@ -60,9 +70,41 @@ for element in reshape.sortByKey().collect():
 	print ('Scheduling class '+str(element[0])+' : '+str(100*(float(element[1])/total))+' percent.')
 
 print('total is '+str(total))
-	
+
+total = time.time()-start
+print('Total time elapsed: '+str(total)+' seconds.')			
+
+
+
+
+
+
+
+
+
 # For the jobs
-entries2 = jobEvent.filter(lambda x: x)
+
+files = []
+
+start = time.time()
+for i in range(0,100):
+	fileName = 'data/job_events/part-'
+	second ='00000'+str(i)
+	if len(second) != 5:
+		second = second[-5:]
+	fileName = fileName+second
+	fileName = fileName + '-of-00500.csv'
+	currentFile = sc.textFile(fileName)
+	files.append(currentFile)
+
+wholeFile = sc.union(files)
+numberOfElements = wholeFile.count()
+
+print('Number of partitions: '+ str(wholeFile.getNumPartitions()))
+print('Type of wholefile: '+ str(type(wholeFile)))
+print('Total elements '+ str(numberOfElements))
+
+entries2 = wholeFile.filter(lambda x: x)
 entries2 = entries2.map(lambda x : x.split(','))
 
 # keep the RDD in memory
@@ -91,7 +133,9 @@ for element in reshape.sortByKey().collect():
 
 print('total is '+str(total))
 	
-	
+total = time.time()-start
+print('Total time elapsed: '+str(total)+' seconds.')			
+
 
 #reshape = oneEntryPerTask.map (lambda x: ((x[0][0]), (x[1])))
 #reshape = reshape.reduceByKey (lambda x,y : )

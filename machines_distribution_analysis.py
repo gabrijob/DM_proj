@@ -29,7 +29,7 @@ machine_nb = machines.count()
 #print machine_nb
 
 # Get distribution for cpu
-dist_cpu = machines.map(lambda x: (float(x[1][0]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb))
+dist_cpu = machines.map(lambda x: (float(x[1][0]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb)).sortByKey()
 
 
 print("\nDistribution of machines according to cpu capacity:\n")
@@ -47,10 +47,13 @@ y_pos = np.arange(len(cpu_labels))
 
 plt.bar(y_pos, cpu_prob_h)
 plt.xticks(y_pos, cpu_labels)
+plt.ylabel("Distribution %")
+plt.xlabel("CPU capacity")
+plt.title("Distribution of machines according to CPU capacity")
 plt.show()
 
 # Get distribution for memory
-dist_mem = machines.map(lambda x: (float(x[1][1]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb))
+dist_mem = machines.map(lambda x: (float(x[1][1]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb)).sortByKey()
 
 print("\nDistribution of machines according to memory capacity:\n")
 for elem in dist_mem.collect():
@@ -66,4 +69,7 @@ y_pos = np.arange(len(mem_labels))
 
 plt.bar(y_pos, mem_prob_h)
 plt.xticks(y_pos, mem_labels)
+plt.ylabel("Distribution %")
+plt.xlabel("Memory capacity")
+plt.title("Distribution of machines according to memory capacity")
 plt.show()

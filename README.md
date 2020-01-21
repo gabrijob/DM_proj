@@ -55,9 +55,6 @@ Analysis, we can see that....
 
 BLABLABLA
 
-![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_cpu.png "Machine CPU Distributions")
-![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_mem.png "Machine Memory Distributions")
-
 ## Question: Do tasks with low priority have a higher probability of being evicted?
 
 For this analysis we will use the _task events_ file. We are interested in computing the probability of a given task event to be an
@@ -164,9 +161,21 @@ After manipulating the results to calculate averages, they are printed on the ou
 ![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/killedEvictedBySchedulingClass-2.png "Step 2 Results")
 
 ```
+First Step
+Probability of task event being EVICT or KILL based on scheduling class:
+('0', 8.422286770195647)                                                        
+('1', 6.850361433152736)
+('2', 22.141683206075324)
+('3', 17.02527194943253)
+First part finished. Time elapsed: 191.8826973438263 seconds.
 
-
-
+Second Step
+Percentage analysis
+Scheduling class 0 :32.03944801867268 percent.                                  
+Scheduling class 1 :18.265014034833516 percent.                                 
+Scheduling class 2 :66.9128349599222 percent.                                   
+Scheduling class 3 :49.67025745734469 percent.                                  
+Total time elapsed: 564.0192849636078 seconds.
 ``` 
 We can see that...
 This computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in AAAAAAAAAA ms iterating around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 

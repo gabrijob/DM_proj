@@ -53,7 +53,18 @@ Analysis, we can see that....
 
 ## Analysis of the distribution of machines according to CPU capacity
 
-BLABLABLA
+This analysis can be found in the "machines_distribution_analysis.py". Its purpose is to use the _machine_events_ file to estimate the distribution of machines in relation to its CPU and memory capacity.
+First, we begin by creating a RDD with the entries of the file, then we change it to a more useful format for us. This is done with the combination of a _map()_ method to get (machine ID, (CPU, Memory)) key-value pairs with only the relevant fields for the analysis, and after with the _distinct()_ and _filter()_ methods to select distinct non-empty entries. With that we are able to calculate the total number of valid machines with:
+```
+machine_nb = machines.count()
+```
+Now we need to count the number of machines for each CPU and memory capacities, to do so we apply another _map()_ to the previous RDD to get new key-value pairs in the form of (CPU capacity, 1) and (Memory capacity, 1), and then count it with _countByKey()_/_reduceByKey(add)_. Finally, we divide these values by the total number of machines to get the distributions. These operations can be seen on the lines:
+```
+dist_cpu = machines.map(lambda x: (float(x[1][0]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb)) 
+
+dist_mem = machines.map(lambda x: (float(x[1][1]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb))
+```
+The resulting distributions can be seen on the following plots:
 ![Step 1](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_cpu.png "Machine CPU Distributions")
 ![Step 2](https://github.com/gabrijob/DM_proj/blob/master/images/machine_dist_mem.png "Machine Memory Distributions")
 

@@ -58,7 +58,7 @@ First, we begin by creating a RDD with the entries of the file, then we change i
 ```
 machine_nb = machines.count()
 ```
-Now we need to count the number of machines for each CPU and memory capacities, to do so we apply another _map()_ to the previous RDD to get new key-value pairs in the form of (CPU capacity, 1) and (Memory capacity, 1), and then count it with _countByKey()_/_reduceByKey(add)_. Finally, we divide these values by the total number of machines to get the distributions. These operations can be seen on the lines:
+Now we need to count the number of machines for each CPU and memory capacities, to do so we apply another _map()_ to the previous RDD to get new key-value pairs in the form of (CPU capacity, 1) and (Memory capacity, 1), and Spark has a counting method for these cases in _countByKey()_(_reduceByKey(add)_ was an equally valid option). Finally, we divide these values by the total number of machines to get the distributions. These operations can be seen on the lines:
 ```
 dist_cpu = machines.map(lambda x: (float(x[1][0]),1)).reduceByKey(add).map(lambda x: (x[0], float(x[1])*100/machine_nb)) 
 

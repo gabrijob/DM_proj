@@ -1,10 +1,14 @@
 
 
-# Data Project
+# Data Management Project - MOSIG M2 - 2019/20
 
+In this project we will carry on several analysises on the data set available online representing 29 days worth of information on one of  _Google_'s large scale clusters, compromising about 12.5k machines. There are hundreds of files available detailing the behavior of said machines, as well as the jobs and tasks they are carrying out over this time period. To facilitate the final calculations, we have decided to not use **all** the files, instead focusing on at most **100** files for each category. That is, when that many are available. 
 
-Questão 2 --> Feita
-Vou fazer mais algumas análises parecidas (perdas de memoria, perdas em geral)
+The data were downloaded using a custom made script, **downloads.sh**, which was written to automatically push files from google's cloud storage (using the _GSUtil_ tool) and unzip them immediately after in the desired path destination.
+
+The structure of the submission is simple. In addition to this report there will be one _python_ (.py) file for each of the analysis or questions answered. As well as the aforementioned custom made script and images containing the graphics shown in the report. 
+
+Each analysis will be made using _spark_ transformations on the resilient distributed dataset (RDD) created for manipulation of out data. 
 
 ## Analysis of cpu loss due to maintenance
 
@@ -158,4 +162,4 @@ RESULTS
 ```
 
 We can see that...
-This computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in AAAAAAAAAA ms iterating around BBBBBBB thousands of lines of data. 
+This computations, using _map_, _reduce_ and _filter_ operations, were conducted by _Spark_ in AAAAAAAAAA ms iterating around 32,959,317 lines of data, from the first 100 _task_event_ files available in the google dataset. 

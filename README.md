@@ -9,13 +9,14 @@
 ## Project Description
 In this project we will carry on several analysises on the data set available online representing 29 days worth of information on one of  _Google_'s [large scale clusters](https://github.com/google/cluster-data/blob/master/ClusterData2011_2.md), compromising about 12.5k machines. There are hundreds of files available detailing the behavior of said machines, as well as the jobs and tasks they are carrying out over this time period.
 
-The data were downloaded using a custom made script, **downloads.sh**, which was written to automatically push files from google's cloud storage (using the [_GSUtil_](https://cloud.google.com/storage/docs/gsutil) tool) and unzip them immediately after in the desired path destination. To facilitate the final calculations, we have decided to not use **all** the files, instead focusing on at most **100** files for each category. That is, when that many are available. Each analysis will be made using _spark_ transformations on the resilient distributed dataset (RDD) created for manipulation of out data.
+The data were downloaded using a custom made script, **downloads.sh**, which was written to automatically push files from google's cloud storage (using the [_GSUtil_](https://cloud.google.com/storage/docs/gsutil) tool) and unzip them immediately after in the current path destination. To facilitate the final calculations, we have decided to not use **all** the files, instead focusing on at most **100** files for each category. That is, when that many are available. Each analysis will be made using _spark_ transformations on the resilient distributed dataset (RDD) created for manipulation of out data.
 
 In addition to this _report_ the files in the submission are:
 
 * One _python_ (.py) file for each of the analyses or questions answered.
-* The aforementioned custom-made script **script.sh**, which helped downloading and unzipping the task/job events files.
-* Images containing the graphics shown in the report, in the _images_ folder.
+* The _python_ (.py) file containing the solution for the analysis done with _pandas_.
+* The aforementioned custom-made script **script.sh**, which helped downloading and unzipping the task/job events files, for consultation purposes.
+* Images containing the graphics shown in the report, located in the _images_ folder.
 * The _allResults.txt_ file, which has a record of the output of each of the anaylises, for consultation purposes.
 
 ## Work on the Dataset
@@ -28,7 +29,7 @@ We move on to the anaylises.
 
 In this step we are interested in estimating how much CPU and memory are lost due to machine removal. To do so, we will process data on the _machine_events_ files. All of the code for this analysis can be found on the file "machine_removal_analysis.py".
 
-*CPU analysis:
+* CPU analysis:
 
 Ideally we need an RDD with information about the CPU capacity added and removed for all machines during the processing. So we start by reading the _machine_events_ entries into a RDD by using the Spark method _textFile()_ and then applying _map()_ into it to split the lines.
 
@@ -119,7 +120,7 @@ The resulting distributions can be seen on the following plots:
 
 We can easily note that for both the CPU and memory capacities, the trend seems to be that the machines end up disponibilizing half of its resourses, other than that, small variations can occur but not as significant. This analysis was conducted by Spark in **3.04** seconds.
 
-## Do tasks with low priority have a higher probability of being evicted?
+## Do tasks with low priority have a higher probability of being evicted? Part 1
 
 For this analysis we will use the _task events_ file. We are interested in computing the probability of a given task event to be an **eviction event**, in relation to its task's _priority_. That is, in relation to the priority of the job for which this given task belongs to.
 Indeed, as the [documentation](https://drive.google.com/open?id=0B5g07T_gRDg9Z0lsSTEtTWtpOW8&authuser=0) explains, the priority of a job normally determines the priority of its tasks. In other words, all tasks related to a job should have the same priority.
@@ -179,6 +180,59 @@ We can conclude that, indeed, it seems that tasks with low priorities have highe
 We can see that for any given event that happens to lowest priorities, say zero and one, tasks there is around 8% chance of it being an eviction. For the higher priority tasks, starting already from the fourth level, the chance drops to nearly 0% of such an event happening. Finally, out of 16025 events that happened to level 11 priority tasks, none of them were evictions.
 
 This analysis was performed with the use of Spark in **3.36** minutes, processing 32,959,317 lines of data.
+
+## Do tasks with low priority have a higher probability of being evicted? Part 2
+
+In this _bonus_ part, we prepared a python file that will perform the same analysis on the data set using Python's data analysis library [Pandas](https://pandas.pydata.org/). The code will not be complicated. We will read all data into one big data frame. Then, we will add two new columns, where one will say if an event is an eviction and the other will always hold a value '1' because it will compromise any kind of event. The full code is available in this submission. The trickiest part is grouping all entries by priority, it looks like this:
+
+```Python
+#Finally, we obtain a pandas' series where we will have event frequency grouped by priority
+nTotalEventsByPriority = df.groupby('Priority')['AnyEvent'].count()
+nTotalEvicitonsByPriority = dfEvictionsOnly.groupby('Priority')['AnyEvent'].count()
+```
+
+We will then run the _Spark_ solution and the _Pandas_ solution on the same number of files. Due to our limited resources we were only able to fetch 174 _task_event_ files in this post. So we will run the analysis on this number of files. The results for the _Spark_ solution were:
+
+```
+Probability of evict event by priority:
+Priority 0: 6.014520266904253% of having a task evicted. Out of 30551780 events with this priority level.
+Priority 1: 4.597629576561737% of having a task evicted. Out of 4544842 events with this priority level.
+Priority 2: 1.0968530282471938% of having a task evicted. Out of 2075392 events with this priority level.
+Priority 3: 8.082408874801903% of having a task evicted. Out of 1893 events with this priority level.
+Priority 4: 0.09767313060468816% of having a task evicted. Out of 15509895 events with this priority level.
+Priority 5: 0.0% of having a task evicted. Out of 126 events with this priority level.
+Priority 6: 0.02350430363799612% of having a task evicted. Out of 425454 events with this priority level.
+Priority 7: 0.0% of having a task evicted. Out of 751 events with this priority level.
+Priority 8: 0.40502979885366464% of having a task evicted. Out of 306891 events with this priority level.
+Priority 9: 0.14417164796355267% of having a task evicted. Out of 3835012 events with this priority level.
+Priority 10: 1.1863466074649645% of having a task evicted. Out of 14414 events with this priority level.
+Priority 11: 0.0% of having a task evicted. Out of 16949 events with this priority level.
+Total time elapsed: 512.3925518989563 seconds.
+```
+
+The results for the _Pandas_ solutions were:
+
+```
+Final Averages: 
+(0, 6.0145202669042526)
+(1, 4.5976295765617374)
+(2, 1.0968530282471938)
+(3, 8.082408874801903)
+(4, 0.097673130604688158)
+(6, 0.023504303637996118)
+(8, 0.40502979885366464)
+(9, 0.14417164796355267)
+(10, 1.1863466074649645)
+Total time elapsed: 92.84956908226013 seconds.
+```
+
+As we can see the distributions over the different priorities are exactly the same, which is expected given that we are iterating over the exact same files. The first interesting fact to learn is that the _spark_ solution took **8.54** minutes to execute, whereas the _pandas_ solution executed in **1.55** minutes, in the same conditions. This behavior could be due to the fact that:
+
+* These computations are not extreamely complex, and perhaps the data set is not huge enough jo justify the administrative costs of parallelizing with _spark_. 
+
+* We are running these analyses in local context, without several hundreds of machines providing a big parallel computational power.
+
+Even though _pandas_ proved to be faster here, it does not mean that it would stay that way with an incresead data magnitude or a more complex set of transformations on the data frame as a whole.
 
 ### Distribution of the number jobs/tasks per scheduling class
 

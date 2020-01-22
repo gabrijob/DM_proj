@@ -11,7 +11,7 @@ In this project we will carry on several analysises on the data set available on
 
 The data were downloaded using a custom made script, **downloads.sh**, which was written to automatically push files from google's cloud storage (using the [_GSUtil_](https://cloud.google.com/storage/docs/gsutil) tool) and unzip them immediately after in the current path destination. To facilitate the final calculations, we have decided to not use **all** the files, instead focusing on at most **100** files for each category. That is, when that many are available. Each analysis will be made using _spark_ transformations on the resilient distributed dataset (RDD) created for manipulation of out data.
 
-In addition to this _report_ the files in the submission are:
+In addition to this _report_ the files in [this submission](https://github.com/gabrijob/DM_proj) are:
 
 * One _python_ (.py) file for each of the analyses or questions answered.
 * The _python_ (.py) file containing the solution for the analysis done with _pandas_.
@@ -19,6 +19,8 @@ In addition to this _report_ the files in the submission are:
 * Images containing the graphics shown in the report, located in the _images_ folder.
 * The _allResults.txt_ file, which has a record of the output of each of the anaylises, for consultation purposes.
 * One version in (.pdf) of this report.
+
+Finally, the projected is located in [**this GitHub repository**](https://github.com/gabrijob/DM_proj).
 
 ## Work on the Dataset
 

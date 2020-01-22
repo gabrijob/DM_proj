@@ -119,7 +119,7 @@ The resulting distributions can be seen on the following plots:
 
 We can easily note that for both the CPU and memory capacities, the trend seems to be that the machines end up disponibilizing half of its resourses, other than that, small variations can occur but not as significant. This analysis was conducted by Spark in **3.04** seconds.
 
-## Question: Do tasks with low priority have a higher probability of being evicted?
+## Do tasks with low priority have a higher probability of being evicted?
 
 For this analysis we will use the _task events_ file. We are interested in computing the probability of a given task event to be an **eviction event**, in relation to its task's _priority_. That is, in relation to the priority of the job for which this given task belongs to.
 Indeed, as the [documentation](https://drive.google.com/open?id=0B5g07T_gRDg9Z0lsSTEtTWtpOW8&authuser=0) explains, the priority of a job normally determines the priority of its tasks. In other words, all tasks related to a job should have the same priority.
@@ -300,4 +300,4 @@ Approximate memory pages lost due to failures: 133.732437228 user accessible pag
 
 ### Conclusion
 
-In the end, Spark proves itself to be a very flexible tool that allowed us to perform a multitude of analysis in a consederably big data set with relative ease. Even though we did not apply Spark to its full potential by running it on more than one machine, or by using more of its advanced and complex methods, we managed to get a better understanding on the inner workings of the framework. There is a lot os possible ways that this work could be extended, such as [À PREENCHER POR GABRIEL BENEVIDES]
+In the end, Spark proves itself to be a very flexible tool that allowed us to perform a multitude of analysis in a considerably big data set with relative ease. Millions of lines of data couls be processes in question of seconds/few minutes. Even though we did not apply Spark to its full potential by running it on more than one machine, for example, we managed to get a better understanding on the inner workings of the framework. There is a lot os possible ways that this work could be extended, such as reproducing some of these analysis using different frameworks and libraries, such as Python _pandas_ and measure the time elapsed in a manner with which the results can be compared.

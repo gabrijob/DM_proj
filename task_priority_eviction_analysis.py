@@ -21,7 +21,7 @@ files = []
 
 
 start = time.time()
-for i in range(0,100):
+for i in range(0,173):
 	fileName = 'data/task_events/part-'
 	second ='00000'+str(i)
 	if len(second) != 5:

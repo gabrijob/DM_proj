@@ -18,6 +18,7 @@ In addition to this _report_ the files in the submission are:
 * The aforementioned custom-made script **script.sh**, which helped downloading and unzipping the task/job events files, for consultation purposes.
 * Images containing the graphics shown in the report, located in the _images_ folder.
 * The _allResults.txt_ file, which has a record of the output of each of the anaylises, for consultation purposes.
+* One version in (.pdf) of this report.
 
 ## Work on the Dataset
 
@@ -91,15 +92,17 @@ dist_mem = machines.map(lambda x: (float(x[1][1]),1)).reduceByKey(add).map(lambd
 ```
 The output on the terminal looks like this:
 
+For CPU capacity:
 ```
-Distribution of machines according to cpu capacity:
 
+Distribution of machines according to cpu capacity:
 CPU capacity: 0.25; Distribution: 1.0007942811755361%
 CPU capacity: 0.5; Distribution: 92.66084193804606%
 CPU capacity: 1.0; Distribution: 6.338363780778396%
-
+```
+For Memory capacity:
+```
 Distribution of machines according to memory capacity:
-
 Memory capacity: 0.03085; Distibution: 0.03971405877680699%
 Memory capacity: 0.06158; Distibution: 0.007942811755361398%
 Memory capacity: 0.1241; Distibution: 0.4289118347895155%
@@ -112,10 +115,11 @@ Memory capacity: 0.9678; Distibution: 0.03971405877680699%
 Memory capacity: 1.0; Distibution: 6.314535345512311%
 Total time elapsed: 3.038912534713745 seconds.
 ```
-
-
 The resulting distributions can be seen on the following plots:
+
+* For CPU distribution
 ![Step 1](images/machine_dist_cpu.png "Machine CPU Distributions")
+* For Memory distribution
 ![Step 2](images/machine_dist_mem.png "Machine Memory Distributions")
 
 We can easily note that for both the CPU and memory capacities, the trend seems to be that the machines end up disponibilizing half of its resourses, other than that, small variations can occur but not as significant. This analysis was conducted by Spark in **3.04** seconds.
@@ -354,4 +358,5 @@ Approximate memory pages lost due to failures: 133.732437228 user accessible pag
 
 ### Conclusion
 
-In the end, Spark proves itself to be a very flexible tool that allowed us to perform a multitude of analysis in a considerably big data set with relative ease. Millions of lines of data couls be processes in question of seconds/few minutes. Even though we did not apply Spark to its full potential by running it on more than one machine, for example, we managed to get a better understanding on the inner workings of the framework. There is a lot os possible ways that this work could be extended, such as reproducing some of these analysis using different frameworks and libraries, such as Python _pandas_ and measure the time elapsed in a manner with which the results can be compared.
+In the end, Spark proves itself to be a very flexible tool that allowed us to perform a multitude of analysis in a considerably big data set with relative ease. Millions of lines of data could be processed in question of seconds/few minutes. Even though we did not apply Spark to its full potential by running it on more than one machine, for example, we managed to get a better understanding on the inner workings of the framework. We could also have worked with an even bigger dataset, as we were limited by the computational resources available to us.
+

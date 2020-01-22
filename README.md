@@ -20,53 +20,61 @@ In addition to this _report_ the files in the submission are:
 
 ## Work on the Dataset
 
-The studies executed where made to show a few possibilities of what **Spark** can do. With that said, the analyses will consist of basic questions, some suggested in the [_project description_](https://tropars.github.io/downloads/lectures/LSDM/LSDM-lab-spark-google.pdf) and some which were not. In some cases, the _time_ library of python will be used also to register the elapsed time for a given processing to be done by spark. Once again, it is worth mentioning that the computational resources were limited. As such, we decided to use only _100 files for task and job events_, out of 500 in total. This number would not slow the machines down so much, as well as not cost so much space in the hard-drive, while still being able to measure the capabilities of Spark.
+The studies executed where made to show a few possibilities of what **Spark** can do. With that said, the analyses will consist of basic questions, some suggested in the [_project description_](https://tropars.github.io/downloads/lectures/LSDM/LSDM-lab-spark-google.pdf) and some which were not. In some cases, the _time_ library of python will be used also to register the elapsed time for a given processing to be done by spark. Once again, it is worth mentioning that the computational resources were limited. As such, we decided to use only _100 files for task and job events_, out of 500 in total. This number would not slow the machines down so much, as well as not cost so much space in the hard-drive, while still being able to measure the capabilities and versatility of Spark.
 
 We move on to the anaylises.
 
-### Analysis of CPU loss due to maintenance
+### Analysis of resource losses due to removals
 
-In this step we are interested in estimating how much CPU is lost due to maintenance. To do so, we will process data on the _machine_events_ files. We will need first to set an RDD with the amount of cpu removed during the processing. This information would take a new form to look like this:
+In this step we are interested in estimating how much CPU and memory are lost due to machine removal. To do so, we will process data on the _machine_events_ files. All of the code for this analysis can be found on the file "machine_removal_analysis.py".
 
-```(machine_id, (event_type, cpu, 1)) ```
+*CPU analysis:
 
-The one value at the end will be used posteriously in our calculations.
+Ideally we need an RDD with information about the CPU capacity added and removed for all machines during the processing. So we start by reading the _machine_events_ entries into a RDD by using the Spark method _textFile()_ and then applying _map()_ into it to split the lines.
 
-The code to reuce the original _RDD_ to this structure is a bit complex and looks like this:
-
-```Python
-cpu_removed = entries.filter(lambda x: x[2] != u'2' and x[4] is not u'')\
-	.map(lambda x:(x[1],(int(x[2]),float(x[4]),1)) if x[2]==u'1' else (x[1],(int(x[2]),0,1)))\
-	.reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1], x[2]+y[2]))\
-    .filter(lambda x: x[1][0] != 0);
-```
-Following these operations we need to compute the amount of cpu lost for all removals represented in the form:
-```(nb of removals, cpu loss)```
-The code to reduce our _RDD_ to this form looks like this:
-```Python
-cpu_loss_all = cpu_removed.map(lambda x: (x[1][0], x[1][1])).reduce(lambda x,y: (x[0] + y[0], x[1] + y[1]))
-```
-Finally we can extract the total number of maintenances and the amount of cpu lost by them, which finally enables us to estimate the percentages that we want:
+After that we can get a new RDD with the amount additions and removals of a machine, and the capacity of CPU it makes available. The following line of code gives a RDD composed of key-value pairs [machine ID, (number of removals, CPU capacity, number of additions)], where the number of removals is the amount of times it was removed from the cluster, and the number of additions when it's added to the cluster.
 
 ```Python
-cpu_loss_maintenance = cpu_removed.map(lambda x: (x[1][0], x[1][1]) if 2*x[1][0]+1 == x[1][2] else (x[1][0], x[1][1] - x[1][1]/x[1][0])).filter(lambda x: x[0] > 0).reduce(lambda x,y: (x[0] + y[0], x[1] + y[1]))
-
-tot_cpu_loss_all = cpu_loss_all[1] / cpu_loss_all[0] * 100
-
-tot_cpu_loss_mtnc = cpu_loss_maintenance[1] / cpu_loss_maintenance[0] * 100
-
-tot_cpu_loss_fail = tot_cpu_loss_all - tot_cpu_loss_mtnc
-```
-The same procedure can be repeated to extract information related to memory loss. And finally, the results are as follows:
-
-```
-The percentage of cpu loss for all removals is 53.187451155520826               
-The percentage of cpu loss for maintenance is 52.60410851847717
-The percentage of cpu loss for failures is 0.583342637043657
-The percentage of memory loss for maintenance is 48.62974522719375
+cpu_rm_ratio = entries.filter(lambda x: x[2] != u'2' and x[4] is not u'')\
+	.map(lambda x:(x[1],(1,float(x[4]),0)) if x[2]==u'1' else (x[1],(0,float(x[4]),1)))\
+	.reduceByKey(lambda x,y: (x[0]+y[0], x[1], x[2]+y[2]))
 ```
 
-ANALYSIS BY GABRIEL ANTHUNES
+Basically, the _filter()_ is selecting only the ADD and REMOVE events with CPU capacity not empty. Then, _map()_ creates pairs [(machine ID, (event == REMOVE, CPU capacity, event == ADD))] so that _reduceByKey()_ can be used to sum only the quantity of events for each machine ID.
+
+With that, we can calculate the total amount of CPU lost and added during the processing. We can achieve that by applying _map()_ to the previous RDD to create pairs [number of adds/removes, total CPU added/removed] for each machine, and then using _reduce()_ to sum both fields to get the values for the whole processing. This part can be seen on the lines:
+
+```Python
+cpu_loss_all = cpu_rm_ratio.map(lambda x: (x[1][0], x[1][0]*x[1][1])).reduce(lambda x,y: (x[0] + y[0], x[1] + y[1]))
+cpu_gain_all = cpu_rm_ratio.map(lambda x: (x[1][2], x[1][2]*x[1][1])).reduce(lambda x,y: (x[0] + y[0], x[1] + y[1]))
+```
+
+If we want to consider only the removals due to maintenace, we need to compare the ratio of adds/removes: if it's the same, then it's sequence of events obligatory ended with a REMOVE, since it cannot be added or removed twice in a row and it always starts with an ADD (consider the sequence ADD-REMOVE-ADD-REMOVE). In the opposite case, if the number of removes plus one is equal to the number of additions, then we know that it ended with a maintenance (e.g. ADD-REMOVE-ADD), where a sequence REMOVE-ADD signifies a maintenance. There's also the case when the machine is never removed, then we have only one ADD event and by consequence no losses. In the following line we can calculate the amount of cpu lost due to maintenance:
+
+```Python
+cpu_loss_maintenance = cpu_rm_ratio.map(lambda x: (x[1][0], x[1][0]*x[1][1]) if x[1][0]+1 == x[1][2] else (x[1][0] -1, (x[1][0] -1)*x[1][1]))\
+    .filter(lambda x: x[0] > 0).reduce(lambda x,y: (x[0] + y[0], x[1] + y[1]))
+```
+
+Then, to calculate the percentages we can simply the total loss by the total gain, or equivalently, the maintenance loss by the total gain, which gives:
+
+```
+The percentage of cpu loss for all removals is 41.9495443138                    
+The percentage of cpu loss for maintenance is 41.489455378 
+```
+
+From the difference, we can get the percentage of loss due to other reasons than maintenance:
+```
+The percentage of cpu loss for failures is 0.460088935852
+```
+
+Similarly, we can follow the same steps to calculate the percentage of memory loss due to maintenance, which is:
+```
+The percentage of memory loss for maintenance is 42.470537611
+```
+
+From these results we can see that almost half of the resources are lost due to maintenance during the whole processing, which represents almost 99% of the reasons of machine removal.
+
 
 ### Analysis of the distribution of machines according to CPU and MEMORY capacity
 
@@ -290,3 +298,6 @@ Approximate CPU processing lost due to failures: 366.933069099 CPU-core-s/s
 Approximate memory pages lost due to failures: 133.732437228 user accessible pages
 ```
 
+### Conclusion
+
+In the end, Spark proves itself to be a very flexible tool that allowed us to perform a multitude of analysis in a consederably big data set with relative ease. Even though we did not apply Spark to its full potential by running it on more than one machine, or by using more of its advanced and complex methods, we managed to get a better understanding on the inner workings of the framework. There is a lot os possible ways that this work could be extended, such as [À PREENCHER POR GABRIEL BENEVIDES]
